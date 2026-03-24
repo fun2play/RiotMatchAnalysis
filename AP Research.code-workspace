@@ -1,10 +1,7 @@
 {
 	"folders": [
 		{
-			"path": "."
-		},
-		{
-			"path": "../AP Research Program"
+			"path": "../Advanced Java Project"
 		}
 	],
 	"settings": {}
