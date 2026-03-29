@@ -13,7 +13,7 @@ def main() -> None:
         raise ValueError("RIOT_API_KEY is not set.")
 
     store = StoreData(api_key=api_key, region="americas", platform_region="na1")
-    result = store.store_from_master(match_count=20, delay=1.2, max_players=200)
+    result = store.store_from_master(match_count=20, delay=1.2)
     print(result)
 
 
