@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any
 
 from .riot_api_client import RiotAPIClient
 
@@ -94,9 +93,3 @@ class MatchCollector:
         if not match_ids:
             raise RuntimeError("No ranked match IDs were returned for the resolved Master players.")
         return match_ids
-
-    def fetch_and_cache_matches(self, match_ids: list[str], delay: float = 1.0) -> list[dict[str, Any]]:
-        return self.client.fetch_matches(match_ids=match_ids, delay=delay)
-
-    def fetch_timelines(self, match_ids: list[str], delay: float = 1.0) -> list[dict[str, Any]]:
-        return self.client.fetch_timelines(match_ids=match_ids, delay=delay)

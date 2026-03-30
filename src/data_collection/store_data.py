@@ -112,10 +112,25 @@ class StoreData:
                 time.sleep(delay)
                 continue
 
-            totals["matches"] += 1
             timeline_saved, frames_saved = self.store_timeline(match_id)
             if not timeline_saved:
                 totals["failed_timelines"] += 1
+                self.remove_partial_match(match_id)
+                self.logger.info(
+                    "Download progress: %s/%s matches processed | saved=%s timelines=%s frames=%s cached=%s wrong_queue=%s failed_match=%s failed_timeline=%s",
+                    index,
+                    total_match_ids,
+                    totals["matches"],
+                    totals["timelines"],
+                    totals["frames"],
+                    totals["skipped_cached"],
+                    totals["skipped_wrong_queue"],
+                    totals["failed_matches"],
+                    totals["failed_timelines"],
+                )
+                time.sleep(delay)
+                continue
+            totals["matches"] += 1
             totals["timelines"] += int(timeline_saved)
             totals["frames"] += int(frames_saved)
             self.logger.info(
@@ -136,8 +151,16 @@ class StoreData:
     def is_cached(self, match_id: str) -> bool:
         match_path = self.matches_dir / f"{match_id}.json"
         timeline_path = self.timelines_dir / f"{match_id}.json"
-        frames_path = self.frames_dir / f"{match_id}.json"
-        return match_path.exists() and timeline_path.exists() and frames_path.exists()
+        return match_path.exists() and timeline_path.exists()
+
+    def remove_partial_match(self, match_id: str) -> None:
+        for path in (
+            self.matches_dir / f"{match_id}.json",
+            self.timelines_dir / f"{match_id}.json",
+            self.frames_dir / f"{match_id}.json",
+        ):
+            if path.exists():
+                path.unlink()
 
     def store_match(self, match_id: str, expected_queue: int | None = None) -> tuple[bool, dict | None]:
         match_data = self.client.get_match(match_id)

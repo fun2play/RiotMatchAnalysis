@@ -40,19 +40,22 @@ def build_datasets(min_duration_seconds: int = 600) -> dict[str, int]:
         valid_matches.append(raw_match)
         filter_rows.append({"match_id": raw_match.match_id, "status": "kept", "reason": "ok"})
 
-    write_csv(FILTER_REPORT_PATH, pd.concat([load_report, pd.DataFrame(filter_rows)], ignore_index=True))
-
     if not valid_matches:
         raise ValueError(f"No matches passed preprocessing. Check {FILTER_REPORT_PATH}.")
 
     all_rows = []
     match_labels = []
+    complete_match_count = 0
     for raw_match in valid_matches:
         stage_rows = build_stage_rows(raw_match)
         if len(stage_rows) != 4:
+            filter_rows.append({"match_id": raw_match.match_id, "status": "skipped", "reason": "incomplete_stage_rows"})
             continue
         all_rows.extend(stage_rows)
         match_labels.append({"match_id": raw_match.match_id, "blue_win": stage_rows[0]["blue_win"]})
+        complete_match_count += 1
+
+    write_csv(FILTER_REPORT_PATH, pd.concat([load_report, pd.DataFrame(filter_rows)], ignore_index=True))
 
     if not all_rows:
         raise ValueError("No complete stage rows could be built from the raw matches.")
@@ -78,7 +81,7 @@ def build_datasets(min_duration_seconds: int = 600) -> dict[str, int]:
 
     combined = pd.concat(stage_frames, ignore_index=True)
     write_csv(PROCESSED_DIR / "all_stages.csv", combined)
-    return {"matches": len(valid_matches), "rows": len(combined)}
+    return {"matches": complete_match_count, "rows": len(combined)}
 
 
 def build_split(match_labels: pd.DataFrame) -> pd.DataFrame:

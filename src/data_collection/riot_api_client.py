@@ -84,21 +84,3 @@ class RiotAPIClient:
         url = f"{self.platform_base_url}/lol/summoner/v4/summoners/{summoner_id}"
         payload = self._get(url)
         return payload if isinstance(payload, dict) else {}
-
-    def fetch_matches(self, match_ids: list[str], delay: float = 1.0) -> list[dict[str, Any]]:
-        matches: list[dict[str, Any]] = []
-        for match_id in match_ids:
-            match_data = self.get_match(match_id)
-            if match_data:
-                matches.append(match_data)
-            time.sleep(delay)
-        return matches
-
-    def fetch_timelines(self, match_ids: list[str], delay: float = 1.0) -> list[dict[str, Any]]:
-        timelines: list[dict[str, Any]] = []
-        for match_id in match_ids:
-            timeline_data = self.get_timeline(match_id)
-            if timeline_data:
-                timelines.append(timeline_data)
-            time.sleep(delay)
-        return timelines
